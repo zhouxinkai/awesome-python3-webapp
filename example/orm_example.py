@@ -65,7 +65,9 @@ class Model(dict, metaclass=ModelMetaclass):
         print('ARGS: %s' % str(args))
 
 # testing code:
-
+#当用户写下class User(Model)时，类对象User还没有在内存中创建，Python解释器首先在当前类User的定义中查找metaclass，如果没有找到，
+#就继续在父类Model中查找metaclass，找到了，就使用Model中定义的metaclass的ModelMetaclass来创建User类，
+#也就是说，metaclass可以隐式地继承到子类，但子类自己却感觉不到。
 class User(Model):
     id = IntegerField('id')
     name = StringField('username')
