@@ -154,10 +154,10 @@ class Model(dict, metaclass = ModelMetaclass):
 
 	def getValueOrDefault(self, key):
 		value = getattr(self, key, None)  # 会去调用__getattr__
-		if value is None:
+		if value is None:		# x is y ,用于判断x和y是不是同一个对象， is称为同一性运算符
 			field = self.__mappings__[key]
 			if field.default is not None:
-				value = field.default() if field.default else field.default
+				value = field.default() if callable(field.default) else field.default
 				logging.debug("useing default value for %s: %s" % (key, str(value)))
 				setattr(self, key, value) # 会去调用__setattr__
 		return value	
