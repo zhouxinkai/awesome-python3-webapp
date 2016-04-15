@@ -144,23 +144,24 @@ class RequestHandler(object):
 		kw = __get_request_content()
 
 		if kw is None:
-		# 参数为空说明没有从request对象中获取到参数
+		# 参数为空说明没有从request对象中获取到参数,或者URL处理函数没有参数
 		'''def hello(request):
 			    text = '<h1>hello, %s!</h1>' % request.match_info['name']
 			    return web.Response() 
 			app.router.add_route('GET', '/hello/{name}', hello)
 	    '''
+	    	if not self._has_var_kw_agr and not self._has_kw_arg and not self._required_kw_args:
+	    		# 当URL处理函数没有参数时，将request.match_info设为空，防止调用出错
+	    		request.match_info = dict()
 			kw = dict(**request.match_info)
 		else:
 			if not self._has_var_kw_agr and self._all_kw_args:
 				# not的优先级比and的优先级要高
 				# remove all unamed kw， 从kw中删除URL处理函数中所有不需要的参数
-				copy = dict()
-				for name in self._all_kw_args:
-					if name in kw:
-						copy[name] = kw[name]
-				kw = copy
-			# check named arg:
+				for name in self.kw:
+					if not name in _all_kw_args:
+						kw.pop(name)
+			# check named arg: 检查关键字参数的名字是否和match_info中的重复
 			for k, v in request.match_info.items():
 				if k in kw:
 					logging.warning('Duplicate arg name in named arg and kw args %s' % k)
