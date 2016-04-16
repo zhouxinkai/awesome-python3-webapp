@@ -1,0 +1,13 @@
+.DS_Store
+.cache
+.coverage
+coverage.xml
+*.pyc
+*.sublime-project
+*.py*~
+*.*~
+/Context.sublime-menu
+/Main.sublime-menu
+/__pycache__
+/www/__pycache__
+_build/

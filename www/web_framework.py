@@ -102,7 +102,7 @@ class RequestHandler(object):
 		self._required_kw_args = get_required_kw_args(fn)
 
 	def __get_request_content(self):
-		kw = None
+		request_content = None
 
 		if self._has_var_kw_agr or self._has_kw_arg or self._required_kw_args:
 		# 确保URL处理函数有参数	
@@ -114,25 +114,25 @@ class RequestHandler(object):
 					params = yield from request.json()
 					if not isinstance(params, dict):
 						return web.HTTPBadRequest('JSON body must be object.')
-					kw = params
+					request_content = params
 				elif ct.startswith('application/x-www-form-urlencoded') or ct.startswith('application/form-data'):
 					params = yield from request.post()
-					kw = dict(**params)
+					request_content = dict(**params)
 				else:
 					return web.HTTPBadRequest('Unsupported Content-Type: %s' % request.content_type)
 
 			if request.method == 'GET':
 				qs = request.query_string
 				if qs:
-					kw = dict()
+					request_content = dict()
 					for k, v in parse.parse_qs(qs, True).items():
-					# 解析url中?后面的键值对内容保存到kw
+					# 解析url中?后面的键值对内容保存到request_content
 					'''qs = 'first=f,s&second=s'
 					parse.parse_qs(qs, True).items()	
 					>>> dict([('first', ['f,s']), ('second', ['s'])])
 					'''
-						kw[k] = v[0]
-			return kw
+						request_content[k] = v[0]
+			return request_content
 
 	# __call__方法的代码逻辑:
 	# 1.定义kw对象，用于保存参数
@@ -141,9 +141,9 @@ class RequestHandler(object):
 	# 4.完善_has_request_arg和_required_kw_args属性
 	@asyncio.coroutine
 	def __call__(self, request):
-		kw = __get_request_content()
+		request_content = __get_request_content()
 
-		if kw is None:
+		if request_content is None:
 		# 参数为空说明没有从request对象中获取到参数,或者URL处理函数没有参数
 		'''def hello(request):
 			    text = '<h1>hello, %s!</h1>' % request.match_info['name']
@@ -153,39 +153,45 @@ class RequestHandler(object):
 	    	if not self._has_var_kw_agr and not self._has_kw_arg and not self._required_kw_args:
 	    		# 当URL处理函数没有参数时，将request.match_info设为空，防止调用出错
 	    		request.match_info = dict()
-			kw = dict(**request.match_info)
+	    	else:
+				request_content = dict(**request.match_info)
 		else:
 			if not self._has_var_kw_agr and self._all_kw_args:
 				# not的优先级比and的优先级要高
-				# remove all unamed kw， 从kw中删除URL处理函数中所有不需要的参数
-				for name in self.kw:
+				# remove all unamed request_content， 从request_content中删除URL处理函数中所有不需要的参数
+				for name in self.request_content:
 					if not name in _all_kw_args:
-						kw.pop(name)
+						request_content.pop(name)
 			# check named arg: 检查关键字参数的名字是否和match_info中的重复
 			for k, v in request.match_info.items():
-				if k in kw:
+				if k in request_content:
 					logging.warning('Duplicate arg name in named arg and kw args %s' % k)
-				kw[k] = v
+				request_content[k] = v
 
 		if self._has_request_arg:
-		# 如果有request这个参数，则把request对象加入kw['request']	
-			kw['request'] = request
+		# 如果有request这个参数，则把request对象加入request_content['request']	
+			request_content['request'] = request
 		
 		if self._required_kw_args:
-		# check required kw,检查是否有必需关键字参数	
+		# check required request_content,检查是否有必需关键字参数	
 			for name in self._required_kw_args:
-				if not name in kw:
+				if not name in request_content:
 					return web.HTTPBadRequest('Missing argument: %s' % name)
 
 		# 以上代码均是为了获取调用参数
-		logging.info('call with args: %s' % str(kw))
+		logging.info('call with args: %s' % str(request_content))
 
 		try:
-			r = yield from self._func(**kw)
+			r = yield from self._func(**request_content)
 			return r
 		except APIError as e:
 			return dict(error = e.error, data = e.data, message = e.message)
 
+# 添加CSS等静态文件所在路径
+def add_static(app):
+	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+	app.router.add_static('/static/', path)
+	logging.info('add static %s => %s' % ('/static/', path))
 
 def add_route(app, fn):
 	# URL处理函数
