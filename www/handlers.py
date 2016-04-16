@@ -2,7 +2,7 @@
 
 import re, time, json, logging, hashlib, base64, asyncio
 
-from coreweb import get, post
+from web_framework import get, post
 
 from models import User, Comment, Blog, next_id
 
@@ -14,4 +14,5 @@ def index(request):
 	return{
 		'__template__': 'test.html',
 		'users': users
+		#'__template__'指定的模板文件是test.html，其他参数是传递给模板的数据
 	}

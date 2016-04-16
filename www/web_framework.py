@@ -2,7 +2,7 @@ import asyncio, os, inspect, logging, functools
 
 from urllib import parse
 
-from aiohttp import Web
+from aiohttp import web
 
 from apis import APIError
 
@@ -43,15 +43,15 @@ def post(path):
 
 def get_required_kw_args(fn):
 	# 如果url处理函数需要传入关键字参数，且默认是空的话，获取这个key
-	agrs = []
+	args = []
 	params = inspect.signature(fn).parameters
 	for name, param in params.items():
 		if param.kind == inspect.Parameter.KEYWORD_ONLY and param.default == inspect.Parameter.empty:
-			agrs.append(name)
-	return tuple(agrs)
+			args.append(name)
+	return tuple(args)
 	# 返回函数的形参元组
 
-def get_all_kw_agrs(fn):
+def get_all_kw_args(fn):
 	# 如果url处理函数需要传入关键字参数，获取这个key
     args = []
     params = inspect.signature(fn).parameters
@@ -60,7 +60,7 @@ def get_all_kw_agrs(fn):
             args.append(name)
     return tuple(args)
  
-def has_kw_agr(fn):
+def has_kw_arg(fn):
 	# 判断是否有关键字参数
 	params = inspect.signature(fn).parameters
 	for name, param in params.items():
@@ -98,13 +98,14 @@ class RequestHandler(object):
 		self._has_request_arg = has_request_arg(fn)
 		self._has_var_kw_arg = has_var_kw_arg(fn)
 		self._has_kw_arg = has_kw_arg(fn)
-		self._all_kw_args = get_all_kw_agrs(fn)
+		self._all_kw_args = get_all_kw_args(fn)
 		self._required_kw_args = get_required_kw_args(fn)
 
+	@asyncio.coroutine
 	def __get_request_content(self):
 		request_content = None
 
-		if self._has_var_kw_agr or self._has_kw_arg or self._required_kw_args:
+		if self._has_var_kw_arg or self._has_kw_arg or self._required_kw_args:
 		# 确保URL处理函数有参数	
 			if request.methd == 'POST':
 				if not request.content_type:
@@ -126,13 +127,15 @@ class RequestHandler(object):
 				if qs:
 					request_content = dict()
 					for k, v in parse.parse_qs(qs, True).items():
-					# 解析url中?后面的键值对内容保存到request_content
-					'''qs = 'first=f,s&second=s'
-					parse.parse_qs(qs, True).items()	
-					>>> dict([('first', ['f,s']), ('second', ['s'])])
-					'''
 						request_content[k] = v[0]
-			return request_content
+						# 解析url中?后面的键值对内容保存到request_content
+						'''
+						qs = 'first=f,s&second=s'
+						parse.parse_qs(qs, True).items()	
+						>>> dict([('first', ['f,s']), ('second', ['s'])])
+						'''
+						
+		return request_content
 
 	# __call__方法的代码逻辑:
 	# 1.定义kw对象，用于保存参数
@@ -141,22 +144,23 @@ class RequestHandler(object):
 	# 4.完善_has_request_arg和_required_kw_args属性
 	@asyncio.coroutine
 	def __call__(self, request):
-		request_content = __get_request_content()
-
+		request_content = yield from self.__get_request_content()
+		logging.info(type(request_content))
 		if request_content is None:
 		# 参数为空说明没有从request对象中获取到参数,或者URL处理函数没有参数
-		'''def hello(request):
-			    text = '<h1>hello, %s!</h1>' % request.match_info['name']
-			    return web.Response() 
+			'''
+			def hello(request):
+				    text = '<h1>hello, %s!</h1>' % request.match_info['name']
+				    return web.Response() 
 			app.router.add_route('GET', '/hello/{name}', hello)
-	    '''
-	    	if not self._has_var_kw_agr and not self._has_kw_arg and not self._required_kw_args:
-	    		# 当URL处理函数没有参数时，将request.match_info设为空，防止调用出错
-	    		request.match_info = dict()
-	    	else:
+			'''
+			if not self._has_var_kw_arg and not self._has_kw_arg and not self._required_kw_args:
+				# 当URL处理函数没有参数时，将request.match_info设为空，防止调用出错
+				request_content = dict()
+			else:
 				request_content = dict(**request.match_info)
 		else:
-			if not self._has_var_kw_agr and self._all_kw_args:
+			if not self._has_var_kw_arg and self._all_kw_args:
 				# not的优先级比and的优先级要高
 				# remove all unamed request_content， 从request_content中删除URL处理函数中所有不需要的参数
 				for name in self.request_content:
@@ -171,7 +175,7 @@ class RequestHandler(object):
 		if self._has_request_arg:
 		# 如果有request这个参数，则把request对象加入request_content['request']	
 			request_content['request'] = request
-		
+
 		if self._required_kw_args:
 		# check required request_content,检查是否有必需关键字参数	
 			for name in self._required_kw_args:
@@ -198,11 +202,11 @@ def add_route(app, fn):
 	method = getattr(fn, '__method__', None)
 	path = getattr(fn, '__route__', None)
 	if path is None or method is None:
-		raise ValueError('@get or @post not defined in %s.', % str(fn))
+		raise ValueError('@get or @post not defined in %s.' % str(fn))
 	if not asyncio.iscoroutinefunction(fn) and not inspect.isgeneratorfunction(fn):
 		fn = asyncio.coroutine(fn)
 		#用asyncio.coroutine装饰函数fn
-	logging.info('add route %s %s => %s(%s)', % (method, path, fn.__name__, ','.join(inspect.signature(fn).parameters.keys())))
+	logging.info('add route %s %s => %s(%s)' % (method, path, fn.__name__, ','.join(inspect.signature(fn).parameters.keys())))
 	# 最后一个参数是形参列表
 	app.router.add_route(method, path, RequestHandler(app, fn))
 	# 正式注册为相应的url处理函数

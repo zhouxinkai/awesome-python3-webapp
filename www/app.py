@@ -11,7 +11,7 @@ import orm
 
 from web_framework import add_routes, add_static
 
-from handlers import cookie2user, COOKIE_NAME
+#from handlers import cookie2user, COOKIE_NAME
 
 '''
 # 这是一个使用aiohttp的简单例子
@@ -53,23 +53,21 @@ def init_jinja2(app, **kw):
 	filters = kw.get('filters', None)
 	# filters: 一个字典描述的filters过滤器集合, 如果非模板被加载的时候, 可以安全的添加或较早的移除.
 	if filters is not None:
-		from name, f in filters.items():
+		for name, f in filters.items():
 			env.filters[name] = f
 
 	app['__templating__'] = env
 	# 给webapp设置模板
 
-@asyncio.coroutine
-def logger_factory(app, handler):
-	@asyncio.coroutine
-	def logger(request):
+async def logger_factory(app, handler):
+	async def logger(request):
 		# 记录日志:
 		logging.info('Request: %s %s' % (request.method, request.path))
 		#继续处理请求:
-		return （yield from handler(request)）
+		return (await handler(request))
 	return logger
 
-@asyncio.coroutine
+'''@asyncio.coroutine
 def auth_factory(app, handler):
 	@asyncio.coroutine
 	def auth(request):
@@ -85,12 +83,12 @@ def auth_factory(app, handler):
 				logging.info('set current user: %s' % user.email)
 				request.__user__ = user
 				# user存在则绑定到request上
-		if request.path.startswith('/manage/') and (request.__user__. is None or not request.__user__.admin):
+		if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
 			return web.HTTPFound('/signin')
 		
 		# 继续执行下一步
-        return (yield from handler(request))
-    return auth
+		return (yield from handler(request))
+	return auth'''
 
 # ***********************************************响应处理（重点，重点，重点，重要的事说三遍）***************************************************
 # 总结一下
@@ -103,12 +101,11 @@ def auth_factory(app, handler):
 #     	response_factory在拿到经过处理后的对象，经过一系列类型判断，构造出正确web.Response对象，以正确的方式返回给客户端
 # 在这个过程中，我们只用关心我们的handler的处理就好了，其他的都走统一的通道，如果需要差异化处理，就在通道中选择适合的地方添加处理代码。
 # 注： 在response_factory中应用了jinja2来渲染模板文件
-@asyncio.coroutine
-def response_factory(app, handler):
-	@asyncio.coroutine
-	def response(request):
+
+async def response_factory(app, handler):
+	async def response(request):
 		logging.info('Response handler...')
-		r = yield from handler(request)
+		r = (await handler(request))
 		# 调用相应的URL处理函数处理请求
 		logging.info('response result = %s' % str(r))
 
@@ -137,7 +134,7 @@ def response_factory(app, handler):
 				resp.content_type = 'application/json'
 				return resp
 			else:
-				r['__user__'] = request.__user__
+				# r['__user__'] = request.__user__
 				# 如果有'__template__'为key的值，则说明要套用jinja2的模板，'__template__'Key对应的为模板文件名
 				# 得到模板文件然后用**r去渲染render
 				resp = web.Response(body = app['__templating__'].get_template(
@@ -156,7 +153,7 @@ def response_factory(app, handler):
 					resp.content_type = 'text/plain;charset=utf-8'
 					return resp
 		
-		return response
+	return response
 
 def datetime_filter(t):
 	second_gap = int(time.time() - t)
@@ -173,25 +170,25 @@ def datetime_filter(t):
 	dt = datetime.fromtimestamp(t)
 	return u'%s年%s月%s日' % (dt.year, dt.month, dt.day)
 
-@asyncio.coroutine
-def init(loop):
-	yield from orm.create_pool(loop = loop, **configs.db)
+async def init(loop):
+	await orm.create_pool(loop = loop, **configs.db)
 	# middlewares(中间件)设置3个中间处理函数(都是装饰器)
     # middlewares中的每个factory接受两个参数，app 和 handler(即middlewares中的下一个handler)
     # 譬如这里logger_factory的handler参数其实就是auth_factory
     # middlewares的最后一个元素的handler会通过routes查找到相应的，其实就是routes注册的对应handler
     # 这其实是装饰模式的典型体现，logger_factory, auth_factory, response_factory都是URL处理函数前（如handler.index）的装饰功能
-    app = web.Application(loop = loop, middlewares = [logger_factory, auth_factory, response_factory])
-    
-    init_jinja2(app, filters = dict(datetime = datetime_filter))
-    # 添加URL处理函数, 参数handlers为模块名
-    add_routes(app, 'handlers')
-    # 添加CSS等静态文件路径
-    add_static(app)
-    # 启动
-    srv = yield from loop.create_server(app.make_handler(), '127.0.01', 9000)
-    logging.info('server started at http://127.0.0.1:9000 ........')
-    return srv
+	app = web.Application(loop=loop, middlewares=[
+		logger_factory, response_factory
+	])
+	init_jinja2(app, filters = dict(datetime = datetime_filter))
+	# 添加URL处理函数, 参数handlers为模块名
+	add_routes(app, 'handlers')
+	# 添加CSS等静态文件路径
+	add_static(app)
+	# 启动
+	srv = await loop.create_server(app.make_handler(), '127.0.0.1', 9000)
+	logging.info('server started at http://127.0.0.1:9000 ........')
+	return srv
 
 # 入口，固定写法
 # 获取eventloop然后加入运行事件
