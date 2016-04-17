@@ -102,12 +102,12 @@ class RequestHandler(object):
 		self._required_kw_args = get_required_kw_args(fn)
 
 	@asyncio.coroutine
-	def __get_request_content(self):
+	def __get_request_content(self, request):
 		request_content = None
 
 		if self._has_var_kw_arg or self._has_kw_arg or self._required_kw_args:
 		# 确保URL处理函数有参数	
-			if request.methd == 'POST':
+			if request.method == 'POST':
 				if not request.content_type:
 					return web.HTTPBadRequest('Missing Content-Type')
 				ct = request.content_type.lower()
@@ -144,7 +144,7 @@ class RequestHandler(object):
 	# 4.完善_has_request_arg和_required_kw_args属性
 	@asyncio.coroutine
 	def __call__(self, request):
-		request_content = yield from self.__get_request_content()
+		request_content = yield from self.__get_request_content(request)
 		logging.info(type(request_content))
 		if request_content is None:
 		# 参数为空说明没有从request对象中获取到参数,或者URL处理函数没有参数
@@ -203,7 +203,7 @@ def add_route(app, fn):
 	path = getattr(fn, '__route__', None)
 	if path is None or method is None:
 		raise ValueError('@get or @post not defined in %s.' % str(fn))
-	if not asyncio.iscoroutinefunction(fn) and not inspect.isgeneratorfunction(fn):
+	if not asyncio.iscoroutine(fn) and not inspect.isgeneratorfunction(fn):
 		fn = asyncio.coroutine(fn)
 		#用asyncio.coroutine装饰函数fn
 	logging.info('add route %s %s => %s(%s)' % (method, path, fn.__name__, ','.join(inspect.signature(fn).parameters.keys())))

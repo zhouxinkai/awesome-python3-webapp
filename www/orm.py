@@ -33,6 +33,7 @@ async def select(sql, args, size=None):
                 rs = await cur.fetchmany(size)
             else:
                 rs = await cur.fetchall()
+            	# 取得所有行的数据，作为列表返回，一行数据是一个字典
         logging.info('rows returned: %s' % len(rs))
         return rs
 
@@ -190,16 +191,18 @@ class Model(dict, metaclass = ModelMetaclass):
 	    return [cls(**r) for r in rs]
 
 	@classmethod
-	async def findNumber(cls, selectField, where=None, args=None):
+	async def findNumber(cls, selectField, where=None, args=None): # 获取行数
 	    ' find number by select and where. '
-	    sql = ['select %s _num_ from `%s`' % (selectField, cls.__table__)]
+	    sql = ['select %s as _num_ from `%s`' % (selectField, cls.__table__)]
+	    # 这里的 _num_ 为别名，任何客户端都可以按照这个名称引用这个列，就像它是个实际的列一样
 	    if where:
 	        sql.append('where')
 	        sql.append(where)
-	    rs = await select(' '.join(sql), args, 1)
+	    rs = await select(' '.join(sql), args, 1) #  size = 1, 表示只取一行数据
 	    if len(rs) == 0:
 	        return None
 	    return rs[0]['_num_']
+	    # rs[0]表示一行数据,是一个字典，而rs是一个列表
 
 	@classmethod
 	@asyncio.coroutine
