@@ -84,7 +84,7 @@ def cookie2user(cookie_str):
 		uid, expires, sha1 = L
 		# 分别获取到用户id，过期时间和sha1字符串
 		if int(expires) < time.time():
-			# 如果超时(超过一天没有登录)，返回None
+			# 如果超时(超过一天)，返回None
 			return None
 		user = yield from User.find(uid)
 		# 根据用户id(id为primary key)查找库，对比有没有该用户
@@ -92,7 +92,7 @@ def cookie2user(cookie_str):
 			return None
 		s = '%s-%s-%s-%s' % (uid, user.passwd, expires, _COOKIE_KEY)
 		# 根据查到的user的数据构造一个校验sha1字符串
-		if sha1 != hashlib.sha1(s.encode(utf-8)).hexdigest():
+		if sha1 != hashlib.sha1(s.encode('utf-8')).hexdigest():
 			logging.info('invalid sha1')
 			return None
 
@@ -102,6 +102,27 @@ def cookie2user(cookie_str):
 		logging.exception(e)
 		return None
 
+@get('/')
+@asyncio.coroutine
+def index(request):
+	summary = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+	blogs = [
+		Blog(id = '1', name = 'Test Blog', summary = summary, created_at = time.time() - 120),
+		Blog(id = '2', name = 'Something New', summary = summary, created_at = time.time() - 3600),
+		Blog(id = '3', name = 'Learn Swift', summary = summary, created_at = time.time() - 7200)
+	]
+	return {
+		'__template__': 'blogs.html',
+		'blogs': blogs
+	}
+
+# 注册页面
+@get('/register')
+@asyncio.coroutine
+def register():
+    return {
+        '__template__': 'register.html'
+    }
 
 @post('/api/users')
 @asyncio.coroutine
@@ -145,6 +166,15 @@ def api_register_user(*, email, name, passwd):
 	r.body = json.dumps(user, ensure_ascii = False, default = lambda o:o.__dict__).encode('utf-8')
 	return r
 
+# 登陆页面
+@get('/signin')
+@asyncio.coroutine
+def signin():
+    return {
+        '__template__': 'signin.html'
+    }
+
+
 @post('/api/authenticate')
 @asyncio.coroutine
 def authenticate(*, email, passwd):
@@ -175,34 +205,4 @@ def authenticate(*, email, passwd):
 	# 只把要返回的实例的密码改成'******'，库里的密码依然是正确的，以保证真实的密码不会因返回而暴漏
 	r.content_type = 'application/json'
 	r.body = json.dumps(user, ensure_ascii = False, default = lambda o:o.__dict__).encode('utf-8')
-	return r
-
-@get('/')
-@asyncio.coroutine
-def index(request):
-	summary = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-	blogs = [
-		Blog(id = '1', name = 'Test Blog', summary = summary, created_at = time.time() - 120),
-		Blog(id = '2', name = 'Something New', summary = summary, created_at = time.time() - 3600),
-		Blog(id = '3', name = 'Learn Swift', summary = summary, created_at = time.time() - 7200)
-	]
-	return {
-		'__template__': 'blogs.html',
-		'blogs': blogs
-	}
-
-# 注册页面
-@get('/register')
-@asyncio.coroutine
-def register():
-    return {
-        '__template__': 'register.html'
-    }
-
-# 登陆页面
-@get('/signin')
-@asyncio.coroutine
-def signin():
-    return {
-        '__template__': 'signin.html'
-    }
+	return r    

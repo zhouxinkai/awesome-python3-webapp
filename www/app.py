@@ -112,6 +112,7 @@ async def response_factory(app, handler):
 		logging.info('response result = %s' % str(r))
 
 		if isinstance(r, web.StreamResponse):
+			# 如果响应结果为web.StreamResponse类(即URL处理函数直接返回web.Response)，则直接把它作为响应返回
 			return r
 		if isinstance(r, bytes):
 		# 如果响应结果为字节流，则把字节流塞到response的body里，设置响应类型为流类型，返回	
@@ -137,6 +138,7 @@ async def response_factory(app, handler):
 				return resp
 			else:
 				r['__user__'] = request.__user__
+				# 在__base__.html中会根据__user__设置用户相关信息
 				# 如果有'__template__'为key的值，则说明要套用jinja2的模板，'__template__'Key对应的为模板文件名
 				# 得到模板文件然后用**r去渲染render
 				resp = web.Response(body = app['__templating__'].get_template(
@@ -144,16 +146,16 @@ async def response_factory(app, handler):
 				resp.content_type = 'text/html;charset=utf-8'
 				return resp
 
-			if isinstance(r, int) and r >=100 and r < 600:
-				return web.Response(r)
+		if isinstance(r, int) and r >=100 and r < 600:
+			return web.Response(r)
 
-			if isinstance(r, tuple) and len(r) == 2:
-				status_code, description = r
-				# 如果tuple的第一个元素是int类型且在100到600之间，这里应该是认定为status_code为http状态码，description为描述
-				if isinstance(status_code. int) and t >= 100 and t < 600:
-					return web.Response(status = status_code, text = str(description))
-					resp.content_type = 'text/plain;charset=utf-8'
-					return resp
+		if isinstance(r, tuple) and len(r) == 2:
+			status_code, description = r
+			# 如果tuple的第一个元素是int类型且在100到600之间，这里应该是认定为status_code为http状态码，description为描述
+			if isinstance(status_code. int) and t >= 100 and t < 600:
+				return web.Response(status = status_code, text = str(description))
+				resp.content_type = 'text/plain;charset=utf-8'
+				return resp
 		
 	return response
 
@@ -188,7 +190,7 @@ async def init(loop):
 	# 添加CSS等静态文件路径
 	add_static(app)
 	# 启动
-	srv = await loop.create_server(app.make_handler(), '127.0.0.1', 9000)
+	srv = await loop.create_server(app.make_handler(), '127.0.0.1', 8000)
 	logging.info('server started at http://127.0.0.1:9000 ........')
 	return srv
 
