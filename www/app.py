@@ -11,6 +11,8 @@ import orm
 
 from web_framework import add_routes, add_static
 
+from handlers import cookie2user, COOKIE_NAME
+
 #from handlers import cookie2user, COOKIE_NAME
 
 '''
@@ -67,7 +69,7 @@ async def logger_factory(app, handler):
 		return (await handler(request))
 	return logger
 
-'''@asyncio.coroutine
+@asyncio.coroutine
 def auth_factory(app, handler):
 	@asyncio.coroutine
 	def auth(request):
@@ -83,12 +85,12 @@ def auth_factory(app, handler):
 				logging.info('set current user: %s' % user.email)
 				request.__user__ = user
 				# user存在则绑定到request上
-		if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
-			return web.HTTPFound('/signin')
+		'''if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
+			return web.HTTPFound('/signin')'''
 		
 		# 继续执行下一步
 		return (yield from handler(request))
-	return auth'''
+	return auth
 
 # ***********************************************响应处理（重点，重点，重点，重要的事说三遍）***************************************************
 # 总结一下
@@ -134,7 +136,7 @@ async def response_factory(app, handler):
 				resp.content_type = 'application/json'
 				return resp
 			else:
-				# r['__user__'] = request.__user__
+				r['__user__'] = request.__user__
 				# 如果有'__template__'为key的值，则说明要套用jinja2的模板，'__template__'Key对应的为模板文件名
 				# 得到模板文件然后用**r去渲染render
 				resp = web.Response(body = app['__templating__'].get_template(
@@ -178,7 +180,7 @@ async def init(loop):
     # middlewares的最后一个元素的handler会通过routes查找到相应的，其实就是routes注册的对应handler
     # 这其实是装饰模式的典型体现，logger_factory, auth_factory, response_factory都是URL处理函数前（如handler.index）的装饰功能
 	app = web.Application(loop=loop, middlewares=[
-		logger_factory, response_factory
+		logger_factory, auth_factory, response_factory
 	])
 	init_jinja2(app, filters = dict(datetime = datetime_filter))
 	# 添加URL处理函数, 参数handlers为模块名

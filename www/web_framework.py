@@ -145,7 +145,6 @@ class RequestHandler(object):
 	@asyncio.coroutine
 	def __call__(self, request):
 		request_content = yield from self.__get_request_content(request)
-		logging.info(type(request_content))
 		if request_content is None:
 		# 参数为空说明没有从request对象中获取到参数,或者URL处理函数没有参数
 			'''
@@ -163,8 +162,8 @@ class RequestHandler(object):
 			if not self._has_var_kw_arg and self._all_kw_args:
 				# not的优先级比and的优先级要高
 				# remove all unamed request_content， 从request_content中删除URL处理函数中所有不需要的参数
-				for name in self.request_content:
-					if not name in _all_kw_args:
+				for name in request_content:
+					if not name in self._all_kw_args:
 						request_content.pop(name)
 			# check named arg: 检查关键字参数的名字是否和match_info中的重复
 			for k, v in request.match_info.items():
@@ -189,7 +188,7 @@ class RequestHandler(object):
 			r = yield from self._func(**request_content)
 			return r
 		except APIError as e:
-			return dict(error = e.error, data = e.data, message = e.message)
+			return dict(error = e.error, data = e.field, message = e.message)
 
 # 添加CSS等静态文件所在路径
 def add_static(app):
@@ -203,7 +202,8 @@ def add_route(app, fn):
 	path = getattr(fn, '__route__', None)
 	if path is None or method is None:
 		raise ValueError('@get or @post not defined in %s.' % str(fn))
-	if not asyncio.iscoroutine(fn) and not inspect.isgeneratorfunction(fn):
+	if not asyncio.iscoroutinefunction(fn) and not inspect.isgeneratorfunction(fn):
+		logging.info('set coroutine: %s' % fn.__name__)
 		fn = asyncio.coroutine(fn)
 		#用asyncio.coroutine装饰函数fn
 	logging.info('add route %s %s => %s(%s)' % (method, path, fn.__name__, ','.join(inspect.signature(fn).parameters.keys())))
