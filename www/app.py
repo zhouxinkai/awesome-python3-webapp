@@ -190,7 +190,7 @@ async def init(loop):
 	# 添加CSS等静态文件路径
 	add_static(app)
 	# 启动
-	srv = await loop.create_server(app.make_handler(), '127.0.0.1', 8000)
+	srv = await loop.create_server(app.make_handler(), '127.0.0.1', 9000)
 	logging.info('server started at http://127.0.0.1:9000 ........')
 	return srv
 

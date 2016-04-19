@@ -6,6 +6,8 @@ from aiohttp import web
 
 from apis import APIError
 
+import pdb
+
 # --------------get和post装饰器，用于增加__method__和__route__特殊属性，分别标记请求方法和请求路径
 
 def get(path):
@@ -46,7 +48,7 @@ def get_required_kw_args(fn):
 	args = []
 	params = inspect.signature(fn).parameters
 	for name, param in params.items():
-		if param.kind == inspect.Parameter.KEYWORD_ONLY and param.default == inspect.Parameter.empty:
+		if  param.kind == inspect.Parameter.KEYWORD_ONLY and param.default == inspect.Parameter.empty:
 			args.append(name)
 	return tuple(args)
 	# 返回函数的形参元组
@@ -145,6 +147,7 @@ class RequestHandler(object):
 	@asyncio.coroutine
 	def __call__(self, request):
 		request_content = yield from self.__get_request_content(request)
+		# pdb.set_trace()
 		if request_content is None:
 		# 参数为空说明没有从request对象中获取到参数,或者URL处理函数没有参数
 			'''
@@ -153,18 +156,24 @@ class RequestHandler(object):
 				    return web.Response() 
 			app.router.add_route('GET', '/hello/{name}', hello)
 			'''
-			if not self._has_var_kw_arg and not self._has_kw_arg and not self._required_kw_args:
+			'''if not self._has_var_kw_arg and not self._has_kw_arg and not self._required_kw_args:
 				# 当URL处理函数没有参数时，将request.match_info设为空，防止调用出错
 				request_content = dict()
-			else:
-				request_content = dict(**request.match_info)
+			else:'''
+			request_content = dict(**request.match_info)
 		else:
 			if not self._has_var_kw_arg and self._all_kw_args:
 				# not的优先级比and的优先级要高
 				# remove all unamed request_content， 从request_content中删除URL处理函数中所有不需要的参数
-				for name in request_content:
+					'''for name in request_content:
+					# pdb.set_trace()
 					if not name in self._all_kw_args:
-						request_content.pop(name)
+					request_content.pop(name)'''
+					copy = dict()
+					for name in self._all_kw_args:
+						if name in request_content:
+							copy[name] = request_content[name]
+					request_content = copy
 			# check named arg: 检查关键字参数的名字是否和match_info中的重复
 			for k, v in request.match_info.items():
 				if k in request_content:
