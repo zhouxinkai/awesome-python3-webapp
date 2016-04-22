@@ -1,4 +1,7 @@
-强烈推荐廖老师的Python实战教程
+<p>在交互式环境的提示符<code>&gt;&gt;&gt;</code>下，直接输入代码，按回车，就可以立刻得到代码执行结果。现在，试试输入<code>100+200</code>，看看计算结果是不是300：</p>
+<pre><code class="python"><span class="prompt">&gt;&gt;&gt; </span><span class="number">100</span>+<span class="number">200</span>
+<span class="number">300</span>
+# 强烈推荐廖老师的Python实战教程
 相信大家还记得在廖老师的<a href="http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000" target="_blank">Python3教程</a>刚开始的那段话
 
 如果你是小白用户，满足以下条件：
