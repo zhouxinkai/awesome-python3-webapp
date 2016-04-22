@@ -1,6 +1,3 @@
-<p>在交互式环境的提示符<code>&gt;&gt;&gt;</code>下，直接输入代码，按回车，就可以立刻得到代码执行结果。现在，试试输入<code>100+200</code>，看看计算结果是不是300：</p>
-<pre><code class="python"><span class="prompt">&gt;&gt;&gt; </span><span class="number">100</span>+<span class="number">200</span>
-<span class="number">300</span>
 # 强烈推荐廖老师的Python实战教程
 相信大家还记得在廖老师的<a href="http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000" target="_blank">Python3教程</a>刚开始的那段话
 
@@ -12,10 +9,10 @@
  - 每天能抽出半个小时学习。
  
 ![image](http://www.liaoxuefeng.com/files/attachments/00138676512923004999ceca5614eb2afc5c0efdd2e4640000/0)
-
 不要再犹豫了，这个教程就是为你准备的！
 
-不得不说廖老师的教程写的很用心，也为大家能坚持到最后点个赞，但后面的实战部分远没有那么容易，还是有一定难度的，比如装饰器、元类等等，由于就有了我这个，全部代码都是我**一行一行**敲下来的，**内含大量注释**，保证你看完以后，python水平有一个**大大的提高**。
+不得不说廖老师的教程写的很用心，也为大家能坚持到最后点个赞，<hr>但后面的实战部分远没有那么容易，还是有一定难度的，比如装饰器、元类等等，由于就有了我这个，全部代码都是我<big><mark><kbd>**一行一行**</kbd></mark></big>敲下来的，<big><mark><kbd>**内含大量注释**</kbd></mark></big>，保证你看完以后，python水平有一个<big><mark><kbd>**大大的提高**</kbd></mark></big>。
+
 
 如果喜欢的话，可以点击右上角的Star按钮支持下我的工作^_^
 
