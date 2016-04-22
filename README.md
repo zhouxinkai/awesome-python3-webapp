@@ -1,4 +1,4 @@
-# 强烈推荐廖老师的Python实战教程
+# 强烈推荐廖老师的Python实战项目
 相信大家还记得在廖老师的<a href="http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000" target="_blank">Python3教程</a>刚开始的那段话
 
 如果你是小白用户，满足以下条件：
@@ -9,12 +9,14 @@
  - 每天能抽出半个小时学习。
  
 ![image](http://www.liaoxuefeng.com/files/attachments/00138676512923004999ceca5614eb2afc5c0efdd2e4640000/0)
+
 不要再犹豫了，这个教程就是为你准备的！
+<hr>
+不得不说廖老师的教程写的很用心，也为大家能坚持到最后点个赞，但后面的实战部分远没有那么容易，还是有一定难度的，比如**装饰器、元类**等等，由于就有了我这个，全部代码都是我<big><mark>**一行一行**</mark></big>按照教程敲下来的，<big><mark>**内含大量注释**</mark></big>，保证你看完以后，python水平有一个<big><mark>**大大的提高**</mark></big>。
 
-不得不说廖老师的教程写的很用心，也为大家能坚持到最后点个赞，<hr>但后面的实战部分远没有那么容易，还是有一定难度的，比如装饰器、元类等等，由于就有了我这个，全部代码都是我<big><mark><kbd>**一行一行**</kbd></mark></big>敲下来的，<big><mark><kbd>**内含大量注释**</kbd></mark></big>，保证你看完以后，python水平有一个<big><mark><kbd>**大大的提高**</kbd></mark></big>。
+如果感觉还好的话，可以点击右上角的Star按钮支持下我的工作^_^
 
-
-如果喜欢的话，可以点击右上角的Star按钮支持下我的工作^_^
+# 演示
 
 演示网站PureBlog: [点我查看](http://115.28.155.42/)
 
@@ -26,9 +28,6 @@
 
 
 
-
-基本按照<a href="http://www.liaoxuefeng.com/" target="_blank">廖雪峰的python教程</a>实战部分来编写，添加了大量注释。如果部分注释不够清楚和完整，也欢迎您来添加更多注释，欢迎发起pull request来完善注释和功能。
-
 # 准备工作
 请确保你已经安装以下的库
 
@@ -38,7 +37,7 @@
 
 3. jinja2: python的模板引擎
 
-4. aiomysql: aiomysql针对asyncio框架用于访问mysql的库
+4. aiomysql: mysql官方推出的异步访问mysql的库
 
 
 所有的库都可以通过pip安装
