@@ -1,13 +1,54 @@
-.DS_Store
-.cache
+*.py[cod]
+
+test.db
+test.txt
+sina.html
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+__pycache__
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
 .coverage
-coverage.xml
-*.pyc
-*.sublime-project
-*.py*~
-*.*~
-/Context.sublime-menu
-/Main.sublime-menu
-/__pycache__
-/www/__pycache__
-_build/
+.tox
+nosetests.xml
+
+######################
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+dist
+MANIFEST
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject

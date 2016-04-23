@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import orm,asyncio
 from models import User,Blog,Comment
 
