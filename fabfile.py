@@ -59,7 +59,9 @@ def build():
 
 def deploy():
     newdir = 'www-%s' % _now()
+    # 删除已有的tar文件:
     run('rm -f %s' % _REMOTE_TMP_TAR)
+    # 上传新的tar文件:
     put('dist/%s' % _TAR_FILE, _REMOTE_TMP_TAR)
     with cd(_REMOTE_BASE_DIR):
         sudo('mkdir %s' % newdir)
