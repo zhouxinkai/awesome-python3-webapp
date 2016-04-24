@@ -18,6 +18,8 @@ import pdb
 
 import markdown2
 
+_ADMIN_EMAIL = 'bruce_zhou@163.com'
+
 '''@get('/')
 @asyncio.coroutine
 # 制定url是'/'的处理函数为index
@@ -181,7 +183,7 @@ def api_register_user(*, email, name, passwd):
 	sha1_passwd = '%s:%s' % (uid, passwd)
 
 	admin = False
-	if email == 'admin@163.com':
+	if email == _ADMIN_EMAIL:
 		admin = True
 
 	# 创建一个用户（密码是通过sha1加密保存）
