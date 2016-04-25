@@ -5,6 +5,8 @@ import logging
 import inspect
 import functools
 
+_PAGE_SIZE = 20
+
 # 简单的几个api错误异常类，用于跑出异常
 
 
@@ -51,9 +53,9 @@ class Page(object):
     # 参数说明：
     # item_count：要显示的条目数量
     # page_index：要显示的是第几页
-    # page_size：每页的条目数量，为了方便测试现在显示为2条
+    # page_size：每页的条目数量，为了方便测试现在显示为10条
 
-    def __init__(self, item_count, page_index=1, page_size=2):
+    def __init__(self, item_count, page_index=1, page_size=_PAGE_SIZE):
         self.__item_count = item_count
         self.__page_size = page_size
         # 计算出应该有多少页才能显示全部的条目

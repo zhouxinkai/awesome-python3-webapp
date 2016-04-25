@@ -87,8 +87,8 @@ def auth_factory(app, handler):
 				logging.info('set current user: %s' % user.email)
 				request.__user__ = user
 				# user存在则绑定到request上
-		if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
-			return web.HTTPFound('/signin')
+		# if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
+		# 	return web.HTTPFound('/signin')
 		
 		# 继续执行下一步
 		return (yield from handler(request))
