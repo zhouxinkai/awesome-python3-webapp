@@ -93,3 +93,5 @@
 8. [python3官方文档 ------  五星级推荐，很全](https://docs.python.org/3/library/)
 9. [Google Python编码规范 —--- 良好的编程习惯是很重要的 ](http://zh-google-styleguide.readthedocs.org/en/latest/google-python-styleguide/python_style_rules/)
 10. [  Python进阶必读汇总 -------认真看完，秒杀一大片](http://www.kuqin.com/shuoit/20151116/348975.html)
+11. [Python 深入理解yield](http://www.jb51.net/article/15717.htm)
+12. [Python SMTP发送邮件](http://www.runoob.com/python/python-email.html)
