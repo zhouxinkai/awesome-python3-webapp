@@ -1,5 +1,5 @@
-# 强烈推荐廖老师的Python实战项目：从零开始用Python开发一个博客网站
-相信大家还记得在廖老师的<a href="http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000" target="_blank">Python3教程</a>刚开始的那段话
+# 从零开始用Python开发一个博客网站
+我是跟着廖雪峰的Python教程一步一步走下来的，相信大家还记得在廖老师的<a href="http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000" target="_blank">Python3教程</a>刚开始的那段话
 
 如果你是小白用户，满足以下条件：
 
@@ -18,7 +18,7 @@
 
 # 演示
 
-演示网址: [点我](http://52.193.105.230/)
+演示网址: [点我点我](http://52.193.105.230/)
 
 管理员账号:
 
