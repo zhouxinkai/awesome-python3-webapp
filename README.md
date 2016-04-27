@@ -92,3 +92,4 @@
 7. [HTTP Get，Post请求详解 ------  5星级好文，排版可能有点乱，但写的真的很好](http://blog.chinaunix.net/uid-25808509-id-3047968.html)
 8. [python3官方文档 ------  五星级推荐，很全](https://docs.python.org/3/library/)
 9. [Google Python编码规范 —--- 良好的编程习惯是很重要的 ](http://zh-google-styleguide.readthedocs.org/en/latest/google-python-styleguide/python_style_rules/)
+10. [  Python进阶必读汇总 -------认真看完，秒杀一大片](http://www.kuqin.com/shuoit/20151116/348975.html)
