@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 'url handlers, 处理各种URL请求'
 
-import re, time, json, logging, hashlib, base64, asyncio
+import re, time, json, hashlib, base64, asyncio
+
+from logger import logger
 
 from web_framework import get, post
 
@@ -111,13 +113,13 @@ def cookie2user(cookie_str):
 		s = '%s-%s-%s-%s' % (uid, user.passwd, expires, _COOKIE_KEY)
 		# 根据查到的user的数据构造一个校验sha1字符串
 		if sha1 != hashlib.sha1(s.encode('utf-8')).hexdigest():
-			logging.info('invalid sha1')
+			logger.info('invalid sha1')
 			return None
 
 		user.passwd = '*******'
 		return user
 	except Exception as e:
-		logging.exception(e)
+		logger.exception(e)
 		return None
 
 '''@get('/')
@@ -193,7 +195,7 @@ def api_register_user(*, email, name, passwd):
 
 	yield from user.save()
 	# 保存这个用户到数据库用户表
-	logging.info('save user OK')
+	logger.info('save user OK')
 	r = web.Response()
 	# 构建返回信息
 	r.set_cookie(COOKIE_NAME, user2cookie(user, 86400), max_age = 86400, httponly = True)
@@ -254,7 +256,7 @@ def signout(request):
     r = web.HTTPFound(referer or '/')
     # 清理掉cookie得用户信息数据
     r.set_cookie(COOKIE_NAME, '-deleted-', max_age=0, httponly=True)
-    logging.info('user signed out')
+    logger.info('user signed out')
     return r
 
 # -----------------------------------------------------用户管理------------------------------------
@@ -264,7 +266,7 @@ def signout(request):
 def show_all_users():
     # 显示所有的用户
     users = yield from User.findAll()
-    logging.info('to index...')
+    logger.info('to index...')
     # return (404, 'not found')
 
     return {
@@ -278,7 +280,7 @@ def show_all_users():
 def api_get_users(request):
     # 返回所有的用户信息jason格式
     users = yield from User.findAll(orderBy='created_at desc')
-    logging.info('users = %s and type = %s' % (users, type(users)))
+    logger.info('users = %s and type = %s' % (users, type(users)))
     for u in users:
         u.passwd = '******'
     return dict(users=users)
@@ -375,7 +377,7 @@ def api_get_blog(*, id):
 @asyncio.coroutine
 def api_delete_blog(id, request):
     # 删除一条博客
-    logging.info("删除博客的博客ID为：%s" % id)
+    logger.info("删除博客的博客ID为：%s" % id)
     # 先检查是否是管理员操作，只有管理员才有删除评论权限
     check_admin(request)
     # 查询一下评论id是否有对应的评论
@@ -391,7 +393,7 @@ def api_delete_blog(id, request):
 @asyncio.coroutine
 def api_modify_blog(request, *, id, name, summary, content):
     # 修改一条博客
-    logging.info("修改的博客的博客ID为：%s", id)
+    logger.info("修改的博客的博客ID为：%s", id)
     # name，summary,content 不能为空
     if not name or not name.strip():
         raise APIValueError('name', 'name cannot be empty')
@@ -483,7 +485,7 @@ def api_create_comment(id, request, *, content):
 @asyncio.coroutine
 def api_delete_comments(id, request):
     # 删除某个评论
-    logging.info(id)
+    logger.info(id)
     # 先检查是否是管理员操作，只有管理员才有删除评论权限
     check_admin(request)
     # 查询一下评论id是否有对应的评论

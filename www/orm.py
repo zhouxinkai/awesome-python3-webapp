@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import logging; logging.basicConfig(level=logging.INFO)
+
+from logger import logger
+
 import asyncio, aiomysql
 
 import pdb
@@ -8,11 +10,11 @@ import pdb
 __pool = None
 
 def log(sql, args=()):
-    logging.info('SQL: %s' % sql)
+    logger.info('SQL: %s' % sql)
 
 async def create_pool(loop, **kw):
 	# 负责创建一个全局的数据连接对象
-	logging.info('create database connection pool...')
+	logger.info('create database connection pool...')
 	global __pool
 	__pool = await aiomysql.create_pool(
 	        host=kw.get('host', 'localhost'),
@@ -38,7 +40,7 @@ async def select(sql, args, size=None):
             else:
                 rs = await cur.fetchall()
             	# 取得所有行的数据，作为列表返回，一行数据是一个字典
-        logging.info('rows returned: %s' % len(rs))
+        logger.info('rows returned: %s' % len(rs))
         return rs
 
 async def execute(sql, args, autocommit=True):
@@ -52,7 +54,7 @@ async def execute(sql, args, autocommit=True):
                 affected = cur.rowcount
             if autocommit:
                 await conn.commit()
-                logging.info('commit success!')
+                logger.info('commit success!')
         except BaseException as e:
             if not autocommit:
                 await conn.rollback()
@@ -108,14 +110,14 @@ class ModelMetaclass(type):
 			return type.__new__(cls, name, bases, attrs)
 		# 获取table名称
 		tableName = attrs.get('__table__', None) or name
-		logging.info('found model: %s (table: %s)' % (name, tableName))
+		logger.info('found model: %s (table: %s)' % (name, tableName))
 		# 获取所有的Field和主键名
 		mappings = dict()
 		fields = []
 		primaryKey = None
 		for k, v in attrs.items():
 			if isinstance(v, Field):
-				logging.info('found mapping: %s ==> %s' % (k,v))
+				logger.info('found mapping: %s ==> %s' % (k,v))
 				mappings[k] = v;
 				if v.primary_key:
 					#找到主键
@@ -163,7 +165,7 @@ class Model(dict, metaclass = ModelMetaclass):
 			field = self.__mappings__[key]
 			if field.default is not None:
 				value = field.default() if callable(field.default) else field.default
-				logging.debug("useing default value for %s: %s" % (key, str(value)))
+				logger.info("useing default value for %s: %s" % (key, str(value)))
 				setattr(self, key, value) # 会去调用__setattr__
 		return value	
 
@@ -197,7 +199,7 @@ class Model(dict, metaclass = ModelMetaclass):
 	@classmethod
 	async def findNumber(cls, selectField, where=None, args=None): # 获取行数
 	    ' find number by select and where. '
-	    sql = ['select %s as _num_ from `%s`' % (selectField, cls.__table__)]
+	    sql = ['select %s as `_num_` from `%s`' % (selectField, cls.__table__)]
 	    # 这里的 _num_ 为别名，任何客户端都可以按照这个名称引用这个列，就像它是个实际的列一样
 	    if where:
 	        sql.append('where')
@@ -205,7 +207,7 @@ class Model(dict, metaclass = ModelMetaclass):
 	    rs = await select(' '.join(sql), args, 1) #  size = 1, 表示只取一行数据
 	    if len(rs) == 0:
 	        return None
-	    return rs[0]['_num_']
+	    return rs[0].get('_num_', None)
 	    # rs[0]表示一行数据,是一个字典，而rs是一个列表
 
 	@classmethod
@@ -227,20 +229,20 @@ class Model(dict, metaclass = ModelMetaclass):
 		args.append(self.getValueOrDefault(self.__primary_key__))
 		rows = yield from execute(self.__insert__, args)
 		if rows != 1:
-			logging.warn('failed to insert record: affected rows : %s' % rows)
+			logger.info('failed to insert record: affected rows : %s' % rows)
 
 	async def update(self):
 	    args = list(map(self.getValue, self.__fields__))
 	    args.append(self.getValue(self.__primary_key__))
 	    rows = await execute(self.__update__, args)
 	    if rows != 1:
-	        logging.warn('failed to update by primary key: affected rows: %s' % rows)
+	        logger.info('failed to update by primary key: affected rows: %s' % rows)
 
 	async def remove(self):
 	    args = [self.getValue(self.__primary_key__)]
 	    rows = await execute(self.__delete__, args)
 	    if rows != 1:
-	        logging.warn('failed to remove by primary key: affected rows: %s' % rows)
+	        logger.info('failed to remove by primary key: affected rows: %s' % rows)
 
 '''#test code
 class User(Model):

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import logging; logging.basicConfig(level=logging.INFO)
 
 import asyncio, os, json, time
 from datetime import datetime
@@ -15,6 +14,8 @@ from web_framework import add_routes, add_static
 
 from handlers import cookie2user, COOKIE_NAME
 
+from logger import logger
+
 #from handlers import cookie2user, COOKIE_NAME
 
 '''
@@ -27,7 +28,7 @@ def init(loop):
     app = web.Application(loop=loop)
     app.router.add_route('GET', '/', index)
     srv = yield from loop.create_server(app.make_handler(), '127.0.0.1', 9000)
-    logging.info('server started at http://127.0.0.1:9000...')
+    logger.info('server started at http://127.0.0.1:9000...')
     return srv
 
 loop = asyncio.get_event_loop()
@@ -35,7 +36,7 @@ loop.run_until_complete(init(loop))
 loop.run_forever()'''
 
 def init_jinja2(app, **kw):
-	logging.info('init jinja2....')
+	logger.info('init jinja2....')
 	options = dict(
 		autoescape = kw.get('autoescape', True),
 		block_start_string = kw.get('block_start_string', '{%'),	# 运行代码的开始标识符
@@ -50,7 +51,7 @@ def init_jinja2(app, **kw):
 	if path is None:
 		# 如果没有，则默认为当前文件目录下的 templates 目录
 		path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
-	logging.info('set jinja2 template path: %s' % path)
+	logger.info('set jinja2 template path: %s' % path)
 
 	env = Environment(loader = FileSystemLoader(path), **options)
 	# Environment是jinjia2中的一个核心类，它的实例用来保存配置、全局对象以及模板文件的路径
@@ -64,18 +65,18 @@ def init_jinja2(app, **kw):
 	# 给webapp设置模板
 
 async def logger_factory(app, handler):
-	async def logger(request):
+	async def logger_fact(request):
 		# 记录日志:
-		logging.info('Request: %s %s' % (request.method, request.path))
+		logger.info('Request: %s %s' % (request.method, request.path))
 		#继续处理请求:
 		return (await handler(request))
-	return logger
+	return logger_fact
 
 @asyncio.coroutine
 def auth_factory(app, handler):
 	@asyncio.coroutine
 	def auth(request):
-		logging.info('check user: %s %s' % (request.method, request.path))
+		logger.info('check user: %s %s' % (request.method, request.path))
 		request.__user__ = None
 
 		cookie_str = request.cookies.get(COOKIE_NAME)
@@ -84,7 +85,7 @@ def auth_factory(app, handler):
 			user = yield from cookie2user(cookie_str)
 			# 通过反向解析字符串和与数据库对比获取出user
 			if user:
-				logging.info('set current user: %s' % user.email)
+				logger.info('set current user: %s' % user.email)
 				request.__user__ = user
 				# user存在则绑定到request上
 		# if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
@@ -108,10 +109,10 @@ def auth_factory(app, handler):
 
 async def response_factory(app, handler):
 	async def response(request):
-		logging.info('Response handler...')
+		logger.info('Response handler...')
 		r = (await handler(request))
 		# 调用相应的URL处理函数处理请求
-		logging.info('response result = %s' % str(r))
+		logger.info('response result = %s' % str(r))
 
 		if isinstance(r, web.StreamResponse):
 			# 如果响应结果为web.StreamResponse类(即URL处理函数直接返回web.Response)，则直接把它作为响应返回
@@ -193,7 +194,7 @@ async def init(loop):
 	add_static(app)
 	# 启动
 	srv = await loop.create_server(app.make_handler(), '127.0.0.1', 9000)
-	logging.info('server started at http://127.0.0.1:9000 ........')
+	logger.info('server started at http://127.0.0.1:9000 ........')
 	return srv
 
 # 入口，固定写法

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import asyncio, os, inspect, logging, functools
+import asyncio, os, inspect, functools
+
+from logger import logger
 
 from urllib import parse
 
@@ -179,7 +181,7 @@ class RequestHandler(object):
 			# check named arg: 检查关键字参数的名字是否和match_info中的重复
 			for k, v in request.match_info.items():
 				if k in request_content:
-					logging.warning('Duplicate arg name in named arg and kw args %s' % k)
+					logger.info('Duplicate arg name in named arg and kw args %s' % k)
 				request_content[k] = v
 
 		if self._has_request_arg:
@@ -193,7 +195,7 @@ class RequestHandler(object):
 					return web.HTTPBadRequest('Missing argument: %s' % name)
 
 		# 以上代码均是为了获取调用参数
-		logging.info('call with args: %s' % str(request_content))
+		logger.info('call with args: %s' % str(request_content))
 
 		try:
 			r = yield from self._func(**request_content)
@@ -205,7 +207,7 @@ class RequestHandler(object):
 def add_static(app):
 	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
 	app.router.add_static('/static/', path)
-	logging.info('add static %s => %s' % ('/static/', path))
+	logger.info('add static %s => %s' % ('/static/', path))
 
 def add_route(app, fn):
 	# URL处理函数
@@ -214,10 +216,10 @@ def add_route(app, fn):
 	if path is None or method is None:
 		raise ValueError('@get or @post not defined in %s.' % str(fn))
 	if not asyncio.iscoroutinefunction(fn) and not inspect.isgeneratorfunction(fn):
-		logging.info('set coroutine: %s' % fn.__name__)
+		logger.info('set coroutine: %s' % fn.__name__)
 		fn = asyncio.coroutine(fn)
 		#用asyncio.coroutine装饰函数fn
-	logging.info('add route %s %s => %s(%s)' % (method, path, fn.__name__, ','.join(inspect.signature(fn).parameters.keys())))
+	logger.info('add route %s %s => %s(%s)' % (method, path, fn.__name__, ','.join(inspect.signature(fn).parameters.keys())))
 	# 最后一个参数是形参列表
 	app.router.add_route(method, path, RequestHandler(app, fn))
 	# 正式注册为相应的url处理函数
