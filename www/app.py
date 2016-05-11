@@ -80,7 +80,7 @@ def auth_factory(app, handler):
 		request.__user__ = None
 
 		cookie_str = request.cookies.get(COOKIE_NAME)
-		# 获取到cookie字符串, cookie是用分号分割的一组名值对，在python中被看成dict
+		# 获取到cookie字符串, cookies是用分号分割的一组名值对，在python中被看成dict
 		if cookie_str:
 			user = yield from cookie2user(cookie_str)
 			# 通过反向解析字符串和与数据库对比获取出user

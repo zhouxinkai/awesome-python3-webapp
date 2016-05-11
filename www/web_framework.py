@@ -163,8 +163,9 @@ class RequestHandler(object):
 			'''if not self._has_var_kw_arg and not self._has_kw_arg and not self._required_kw_args:
 				# 当URL处理函数没有参数时，将request.match_info设为空，防止调用出错
 				request_content = dict()
-			else:'''
+			'''
 			request_content = dict(**request.match_info)
+			# request.match_info是一个dict
 		else:
 			if not self._has_var_kw_arg and self._all_kw_args:
 				# not的优先级比and的优先级要高
