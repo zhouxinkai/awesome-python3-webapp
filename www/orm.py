@@ -30,22 +30,22 @@ async def create_pool(loop, **kw):
 		)
 
 async def select(sql, args, size=None):
-    log(sql, args)
-    global __pool
-    async with __pool.get() as conn:
-    	try:
-    		async with conn.cursor(aiomysql.DictCursor) as cur:
-    		    await cur.execute(sql.replace('?', '%s'), args or ())
-    		    if size:
-    		        rs = await cur.fetchmany(size)
-    		    else:
-    		        rs = await cur.fetchall()
-    		    	# 取得所有行的数据，作为列表返回，一行数据是一个字典
-    	except BaseException as e:
-    		rs = []
-    		logger.info(e)
-    	logger.info('rows returned: %s' % len(rs))	
-        return rs
+	log(sql, args)
+	global __pool
+	async with __pool.get() as conn:
+		try:
+			async with conn.cursor(aiomysql.DictCursor) as cur:
+				await cur.execute(sql.replace('?', '%s'), args or ())
+				if size:
+					rs = await cur.fetchmany(size)
+				else:
+					rs = await cur.fetchall()
+					# 取得所有行的数据，作为列表返回，一行数据是一个字典
+		except BaseException as e:
+			rs = []
+			logger.info(e)
+		logger.info('rows returned: %s' % len(rs))	
+		return rs
 
 async def execute(sql, args, autocommit=True):
     log(sql)
