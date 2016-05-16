@@ -74,7 +74,7 @@ class Page(object):
             # 这页的初始条目的offset
             self.offset = self.__page_size * (page_index - 1)
             # 这页能显示的数量
-            self.limit = self.__page_size
+            self.limit =  self.__item_count if self.__item_count <  self.__page_size else self.__page_size 
         # 这页后面是否还有下一页
         self.has_next = self.__page_index < self.__page_count
         # 这页之前是否还有上一页

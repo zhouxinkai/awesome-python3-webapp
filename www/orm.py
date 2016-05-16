@@ -10,7 +10,7 @@ import pdb
 __pool = None
 
 def log(sql, args=()):
-    logger.info('SQL: %s' % sql)
+    logger.info('SQL: %s, ARGS: %s' % (sql, args))
 
 async def create_pool(loop, **kw):
 	# 负责创建一个全局的数据连接对象
@@ -40,7 +40,7 @@ async def select(sql, args, size=None):
             else:
                 rs = await cur.fetchall()
             	# 取得所有行的数据，作为列表返回，一行数据是一个字典
-        logger.info('rows returned: %s' % len(rs))
+        	logger.info('rows returned: %s' % len(rs))
         return rs
 
 async def execute(sql, args, autocommit=True):

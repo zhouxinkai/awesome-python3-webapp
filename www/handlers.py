@@ -141,7 +141,7 @@ def index(*, page='1'):
     num = yield from Blog.findNumber('count(id)')
     # 通过Page类来计算当前页的相关信息
     page = Page(num, page_index)
-    # 如果表里没有条目，则不需要系那是
+    # 如果表里没有条目，则不需要显示
     if num == 0:
         blogs = []
     else:

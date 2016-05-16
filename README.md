@@ -38,7 +38,7 @@
 
 3. jinja2: python的模板渲染引擎
 
-4. aiomysql: mysql官方推出的异步mysql库
+4. aiomysql: 异步mysql库,[参考资料](http://aiomysql.readthedocs.io/en/latest/)
 
 # 代码结构
 >- www
