@@ -19,6 +19,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+.tags*
 lib
 lib64
 __pycache__  # 不上传这个文件夹

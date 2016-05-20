@@ -135,24 +135,27 @@ def index(request):
 @get('/')
 @asyncio.coroutine
 def index(*, page='1'):
-    # 获取到要展示的博客页数是第几页
-    page_index = get_page_index(page)
-    # 查找博客表里的条目数
-    num = yield from Blog.findNumber('count(id)')
-    # 通过Page类来计算当前页的相关信息
-    page = Page(num, page_index)
-    # 如果表里没有条目，则不需要显示
-    if num == 0:
-        blogs = []
-    else:
-        # 否则，根据计算出来的offset(取的初始条目index)和limit(取的条数)，来取出条目
-        blogs = yield from Blog.findAll(orderBy='created_at desc', limit=(page.offset, page.limit))
-        # 返回给浏览器
-    return {
-        '__template__': 'blogs.html',
-        'page': page,
-        'blogs': blogs
-    }
+	# 获取到要展示的博客页数是第几页
+	page_index = get_page_index(page)
+	# 查找博客表里的条目数
+	num = yield from Blog.findNumber('count(id)')
+
+	# 如果表里没有条目，则不需要显示
+	if (not num) and num == 0:
+		logger.info('the type of num is: %s' % type(numn))
+		blogs = []
+	else:
+		# 通过Page类来计算当前页的相关信息
+		page = Page(num, page_index)
+
+		# 否则，根据计算出来的offset(取的初始条目index)和limit(取的条数)，来取出条目
+		blogs = yield from Blog.findAll(orderBy='created_at desc', limit=(page.offset, page.limit))
+	# 返回给浏览器
+	return {
+		'__template__': 'blogs.html',
+		'page': page,
+		'blogs': blogs
+	}
 
 # -----------------------------------------------------注册register、登录signin、注销signout-----------------------------------
 
