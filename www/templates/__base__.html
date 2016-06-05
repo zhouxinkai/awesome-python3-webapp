@@ -17,9 +17,10 @@
 {% endmacro %}
 -->
 <html>
+
 <head>
-    <meta charset="utf-8" />
-    {% block meta %}<!-- block meta  -->{% endblock %}
+    <meta charset="utf-8" /> {% block meta %}
+    <!-- block meta  -->{% endblock %}
     <title>{% block title %} ? {% endblock %} - Awesome Python Webapp</title>
     <link rel="stylesheet" href="/static/css/uikit.min.css">
     <link rel="stylesheet" href="/static/css/uikit.gradient.min.css">
@@ -30,8 +31,10 @@
     <script src="/static/js/sticky.min.js"></script>
     <script src="/static/js/vue.min.js"></script>
     <script src="/static/js/awesome.js"></script>
-    {% block beforehead %}<!-- before head  -->{% endblock %}
+    {% block beforehead %}
+    <!-- before head  -->{% endblock %}
 </head>
+
 <body>
     <nav class="uk-navbar uk-navbar-attached uk-margin-bottom">
         <div class="uk-container uk-container-center">
@@ -46,7 +49,7 @@
             </ul>
             <div class="uk-navbar-flip">
                 <ul class="uk-navbar-nav">
-                {% if __user__ %}
+                    {% if __user__ %}
                     <li class="uk-parent" data-uk-dropdown>
                         <a href="#0"><i class="uk-icon-user"></i> {{ __user__.name }}</a>
                         <div class="uk-dropdown uk-dropdown-navbar">
@@ -55,24 +58,21 @@
                             </ul>
                         </div>
                     </li>
-                {% else %}
+                    {% else %}
                     <li><a href="/signin"><i class="uk-icon-sign-in"></i> 登陆</a></li>
                     <li><a href="/register"><i class="uk-icon-edit"></i> 注册</a></li>
-                {% endif %}
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
-
     <div class="uk-container uk-container-center">
         <div class="uk-grid">
             <!-- content -->
-            {% block content %}
-            {% endblock %}
+            {% block content %} {% endblock %}
             <!-- // content -->
         </div>
     </div>
-
     <div class="uk-margin-large-top" style="background-color:#eee; border-top:1px solid #ccc;">
         <div class="uk-container uk-container-center uk-text-center">
             <div class="uk-panel uk-margin-top uk-margin-bottom">
@@ -86,8 +86,27 @@
                 <p><a href="http://www.brucezhou.com/" target="_blank">http://www.brucezhou.com/</a>. All rights reserved.</p>
                 <a target="_blank" href="http://www.w3.org/TR/html5/"><i class="uk-icon-html5" style="font-size:64px; color: #444;"></i></a>
             </div>
-
         </div>
     </div>
 </body>
+
 </html>
+<script>
+(function(i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r;
+    i[r] = i[r] || function() {
+        (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date();
+    a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0];
+    a.async = 1;
+    a.src = g;
+    m.parentNode.insertBefore(a, m)
+})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+ga('create', 'UA-67984777-5', 'auto');
+
+function gaSend(action) {
+    ga('send', 'event', 'sae_cn_website', action);
+}
+gaSend('open_homepage');
+</script>
