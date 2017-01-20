@@ -22,7 +22,6 @@ from logger import logger
 # 这是一个使用aiohttp的简单例子
 def index(request):
     return web.Response(body=b'<h1>Awesome</h1>')
-
 @asyncio.coroutine
 def init(loop):
     app = web.Application(loop=loop)
@@ -30,7 +29,6 @@ def init(loop):
     srv = yield from loop.create_server(app.make_handler(), '127.0.0.1', 9000)
     logger.info('server started at http://127.0.0.1:9000...')
     return srv
-
 loop = asyncio.get_event_loop()
 loop.run_until_complete(init(loop))
 loop.run_forever()'''
@@ -155,8 +153,8 @@ async def response_factory(app, handler):
 		if isinstance(r, tuple) and len(r) == 2:
 			status_code, description = r
 			# 如果tuple的第一个元素是int类型且在100到600之间，这里应该是认定为status_code为http状态码，description为描述
-			if isinstance(status_code. int) and t >= 100 and t < 600:
-				return web.Response(status = status_code, text = str(description))
+			if isinstance(status_code. int) and status_code >= 100 and status_code < 600:
+				resp = web.Response(status = status_code, text = str(description))
 				resp.content_type = 'text/plain;charset=utf-8'
 				return resp
 		
