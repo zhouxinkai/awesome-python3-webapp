@@ -11,7 +11,6 @@ import os, re
 
 from datetime import datetime
 from fabric.api import *
-
 env.user = 'root'
 env.sudo_user = 'root'
 env.hosts = ['52.39.16.215']
